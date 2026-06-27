@@ -69,4 +69,21 @@ def curated(context: AssetExecutionContext) -> MaterializeResult:
     )
 
 
-defs = Definitions(assets=[tracks, events, features, curated])
+@asset(
+    group_name="scenario_engine",
+    deps=[features, events],
+    description="Embed scenarios into LanceDB for similarity search",
+)
+def embeddings(context: AssetExecutionContext) -> MaterializeResult:
+    from src.embed import run
+    from src.config import LANCE_DIR
+    table = run()
+    return MaterializeResult(
+        metadata={
+            "indexed_scenarios": MetadataValue.int(table.count_rows()),
+            "output_dir": MetadataValue.path(str(LANCE_DIR)),
+        }
+    )
+
+
+defs = Definitions(assets=[tracks, events, features, curated, embeddings])

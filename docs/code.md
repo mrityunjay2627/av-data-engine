@@ -12,6 +12,7 @@ av-scenario-engine/
 │  ├─ detect.py        → Rule-based event detection
 │  ├─ featurize.py     → Per-scenario kinematic features
 │  ├─ curate.py        → Dedup + stratified sampling
+│  ├─ embed.py         → LanceDB embeddings + similarity search
 │  └─ serve.py         → DuckDB CLI query interface
 ├─ pipeline/           → Dagster orchestration
 │  └─ definitions.py   → Asset definitions wiring src/ into a DAG
@@ -114,7 +115,33 @@ Algorithm:
 - `python -m src.serve --stats` — catalog summary
 - `python -m src.serve --event HARD_BRAKE` — filter by event type
 - `python -m src.serve --scenario sc_00042` — scenario details
+- `python -m src.serve --similar sc_00042` — find similar via LanceDB
 - `python -m src.serve --sql "SELECT ..."` — raw SQL
+
+### src/embed.py
+**Purpose:** Build normalized kinematic embeddings and index them in LanceDB for similarity search.
+**Input:** `data/warehouse/features.parquet` + events table.
+**Output:** `data/lance/scenarios.lance/` (LanceDB table).
+**Run:** `python -m src.embed`
+
+Algorithm:
+1. StandardScaler on 6 kinematic features
+2. L2-normalize to unit vectors
+3. Store in LanceDB with metadata (event types, speed stats)
+4. Similarity search via cosine distance on the normalized vectors
+
+### tests/test_pipeline.py
+**Purpose:** Smoke tests covering data generation, contract validation, event detection, dedup, and full pipeline integration.
+**Run:** `python -m tests.test_pipeline`
+
+Tests:
+- `test_generate` — correct row count, scenario count, object types, ego presence
+- `test_contracts_valid` — valid data passes Pandera schemas
+- `test_contracts_reject_bad_data` — invalid event types are caught
+- `test_detect_hard_brake` — synthetic hard brake is detected
+- `test_detect_no_false_positives` — constant-speed track produces zero events
+- `test_curate_dedup_reduces` — clustering removes near-duplicates
+- `test_full_pipeline_smoke` — end-to-end generate→ingest→detect→featurize
 
 ### pipeline/definitions.py
 **Purpose:** Dagster software-defined assets wiring src/ stages into a DAG.
@@ -154,6 +181,8 @@ Panels: summary metrics, event frequency bar chart, severity distribution, agent
 [detect.py] ──contracts──▶ data/warehouse/events/ (Hive-partitioned)
     │
     ├──▶ [featurize.py] ──contracts──▶ data/warehouse/features.parquet
+    │         │
+    │         ├──▶ [embed.py] ────────────▶ data/lance/ (LanceDB)
     │         │
     │         ▼
     └──▶ [curate.py] ────────────────▶ data/warehouse/curated/

@@ -84,6 +84,7 @@ def run():
     parser.add_argument("--scenario", type=str, help="Show details for a specific scenario")
     parser.add_argument("--stats", action="store_true", help="Show catalog statistics")
     parser.add_argument("--sql", type=str, help="Run a raw SQL query")
+    parser.add_argument("--similar", type=str, help="Find scenarios similar to this scenario_id")
     parser.add_argument("--limit", type=int, default=20, help="Max rows to return")
     args = parser.parse_args()
 
@@ -95,6 +96,13 @@ def run():
         print(summary.to_string(index=False))
         print("\n=== Events by Type ===")
         print(breakdown.to_string(index=False))
+
+    elif args.similar:
+        from src.embed import search_similar
+        results = search_similar(args.similar, k=args.limit)
+        print(f"\n=== Scenarios similar to {args.similar} ===")
+        cols = ["scenario_id", "event_types", "mean_speed", "max_decel", "_distance"]
+        print(results[cols].to_string(index=False))
 
     elif args.scenario:
         result = query_scenarios(conn, args.scenario)

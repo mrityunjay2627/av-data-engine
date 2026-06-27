@@ -96,7 +96,7 @@ Why not per-scenario? Thousands of tiny files = the classic small-file problem. 
 
 **Why:** "Find more scenes like this" is a real AV data-engine capability. LanceDB is purpose-built for multimodal embeddings alongside tabular data.
 
-**Status:** Stretch goal. The pipeline is complete without it.
+**Status:** Implemented. Embeddings are L2-normalized 6D kinematic vectors stored in LanceDB.
 
 ---
 
@@ -132,3 +132,5 @@ Why not per-scenario? Thousands of tiny files = the classic small-file problem. 
 | 4 | 2026-06-26 | Dagster for orchestration | Asset model maps to lakehouse tables; interview-relevant |
 | 5 | 2026-06-26 | LanceDB as stretch | Vectors are optional; core pipeline works without it |
 | 6 | 2026-06-27 | Synthetic data generator | Decouples pipeline dev from data access; swap real Waymo later |
+| 7 | 2026-06-27 | LanceDB implemented | Kinematic embeddings + similarity search via normalized vectors |
+| 8 | 2026-06-27 | Hive-partitioned Parquet over full Iceberg | Same physical layout; defer catalog layer until multi-writer needed |

@@ -153,7 +153,8 @@ def run():
     nm = detect_near_misses(tracks)
     print(f"  {len(nm)} near-miss events")
 
-    all_events = pl.concat([hb, ci, nm])
+    EVENT_COLS = ["scenario_id", "object_id", "event_type", "timestep_start", "timestep_end", "severity"]
+    all_events = pl.concat([hb.select(EVENT_COLS), ci.select(EVENT_COLS), nm.select(EVENT_COLS)])
     print(f"DETECT: {len(all_events)} total events")
 
     if not all_events.is_empty():

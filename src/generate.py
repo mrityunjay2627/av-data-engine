@@ -52,7 +52,7 @@ def generate_scenarios(
 
         ego_x, ego_y, ego_h, ego_vx, ego_vy = _make_ego_trajectory(n_timesteps)
 
-        if rng.random() < 0.15:
+        if rng.random() < 0.15 and n_timesteps > 30:
             brake_start = rng.integers(20, n_timesteps - 15)
             ego_vx, ego_vy = _inject_hard_brake(ego_vx.copy(), ego_vy.copy(), brake_start)
             ego_x = np.cumsum(ego_vx * 0.1)
@@ -83,7 +83,7 @@ def generate_scenarios(
             ag_x += rng.uniform(-30, 30)
             ag_y += rng.uniform(-30, 30)
 
-            if rng.random() < 0.10:
+            if rng.random() < 0.10 and n_timesteps > 40:
                 merge_step = rng.integers(10, n_timesteps - 25)
                 ag_x, ag_y = _inject_cut_in(ag_x, ag_y, ego_x, ego_y, merge_step)
 

@@ -15,6 +15,7 @@ Ingests Waymo Open Motion Dataset trajectories (or synthetic equivalents), detec
 | Query | DuckDB | In-process OLAP, native Hive partition reads |
 | Orchestration | Dagster | Software-defined assets, lineage, retries |
 | Quality | Pandera | Data contracts between pipeline stages |
+| Vectors | LanceDB | Scene embeddings + similarity search |
 | Analytics | DuckDB SQL marts + Streamlit | KPI models and dashboard |
 
 ## Quick Start
