@@ -1,0 +1,18 @@
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+WAREHOUSE_DIR = DATA_DIR / "warehouse"
+LANCE_DIR = DATA_DIR / "lance"
+
+TRACKS_TABLE = "tracks"
+EVENTS_TABLE = "events"
+CURATED_TABLE = "curated"
+
+HARD_BRAKE_THRESHOLD_MS2 = -4.0
+CUT_IN_DISTANCE_M = 5.0
+NEAR_MISS_GAP_M = 2.0
+
+SCENARIO_BUCKET_COUNT = 32
+TARGET_FILE_SIZE_MB = 100
