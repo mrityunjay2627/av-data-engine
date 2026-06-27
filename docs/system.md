@@ -30,17 +30,19 @@ Every architectural choice is Spark-swappable, cloud-portable, and uses open for
 
 ---
 
-### D2: Storage — Apache Iceberg on Parquet
+### D2: Storage — Hive-Partitioned Parquet (Iceberg-ready)
 
-**Choice:** Iceberg table format, local filesystem catalog.
+**Choice:** Hive-style partitioned Parquet on local filesystem, queried by DuckDB with automatic partition pruning.
 
-**Why:** ACID writes, partition pruning, time travel, schema evolution — all the lakehouse primitives, zero cloud cost. DuckDB reads Iceberg natively. If this ever moved to S3, the format doesn't change.
+**Why:** This is the exact physical layout Iceberg uses underneath. We get the core concepts — partitioned columnar storage, predicate pushdown, partition pruning — without fighting catalog setup on Windows. DuckDB reads Hive-partitioned Parquet natively with `hive_partitioning=true`.
 
-**Tradeoff:** More setup than bare Parquet. Worth it — Iceberg *is* the 2026 standard, and "I used an open table format" is a stronger résumé line than "I wrote Parquet files."
+**Iceberg upgrade path:** Adding Iceberg is a catalog-layer config change (PyIceberg SqlCatalog + SQLite), not a rewrite. The Parquet files don't move. This gets you ACID transactions, schema evolution, and time travel — defer until you need multi-writer concurrency or snapshots.
 
-**Partition key — `scenario_id` bucketed into ~100 MB files (not one file per scenario).**
+**Tradeoff:** No ACID writes, no time travel, no schema evolution without Iceberg. Acceptable for a single-writer pipeline on local disk.
 
-Why not per-scenario? Thousands of tiny files = the classic small-file problem. The OS, DuckDB, and Iceberg all perform better on fewer, larger files. Bucketing by scenario hash gives even file sizes while keeping related trajectories co-located.
+**Partition key — `scenario_bucket` (hash of scenario_id % 32) for tracks; `event_type` for events.**
+
+Why not per-scenario? Thousands of tiny files = the classic small-file problem. The OS, DuckDB, and any future Spark all perform better on fewer, larger files. Bucketing by scenario hash gives even file sizes while keeping related trajectories co-located. Events partition by type because the dominant query is "give me all cut-ins" — that reads one partition directory.
 
 ---
 
