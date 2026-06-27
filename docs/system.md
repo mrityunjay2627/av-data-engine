@@ -98,6 +98,16 @@ Why not per-scenario? Thousands of tiny files = the classic small-file problem. 
 
 ---
 
+### D9: Synthetic data generator — decouple dev from data access
+
+**Choice:** Build a trajectory generator that produces data in the same schema as WOMD. Develop and test the full pipeline on synthetic data; swap in real Waymo data later via a thin adapter.
+
+**Why:** The `waymo-open-dataset` decode package is Linux-only (no Windows support). Rather than block pipeline development on data access, generate realistic trajectories with intentional event injection (hard brakes, cut-ins) so detection logic can be validated immediately. This is standard practice in data engineering — test on synthetic, validate on real.
+
+**Tradeoff:** Synthetic trajectories lack the complexity of real driving (no map context, simplified kinematics). Acceptable because the pipeline's value is in the architecture, not the model accuracy.
+
+---
+
 ## 4. What We Deliberately Left Out (and Why)
 
 | Tool | Why not |
@@ -119,3 +129,4 @@ Why not per-scenario? Thousands of tiny files = the classic small-file problem. 
 | 3 | 2026-06-26 | Polars over Spark | Right-sized for volume; lazy API teaches the same planning concepts |
 | 4 | 2026-06-26 | Dagster for orchestration | Asset model maps to lakehouse tables; interview-relevant |
 | 5 | 2026-06-26 | LanceDB as stretch | Vectors are optional; core pipeline works without it |
+| 6 | 2026-06-27 | Synthetic data generator | Decouples pipeline dev from data access; swap real Waymo later |

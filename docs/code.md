@@ -25,6 +25,12 @@ av-scenario-engine/
 **Input:** None (constants).
 **Output:** Importable config object used by all other src/ files.
 
+### src/generate.py
+**Purpose:** Synthetic trajectory generator producing data in the WOMD schema. Creates ego + agent tracks with intentional event injection (hard brakes, cut-ins) for pipeline validation.
+**Input:** Generation parameters from config (scenario count, timesteps, agents per scenario).
+**Output:** `data/raw/synthetic_shard_000.parquet` — raw trajectories ready for ingest.
+**Run:** `python -m src.generate`
+
 ### src/ingest.py
 **Purpose:** Parse one WOMD protobuf shard → write Iceberg `tracks` table.
 **Input:** `data/raw/*.tfrecord` (Waymo proto shard).
@@ -75,7 +81,10 @@ av-scenario-engine/
 ## Data Flow
 
 ```
-WOMD .tfrecord
+[generate.py] ──────────▶ data/raw/ (synthetic Parquet)
+    │                       ↕ (swap real WOMD later)
+    ▼
+WOMD .tfrecord or synthetic .parquet
     │
     ▼
 [ingest.py] ──contracts──▶ Iceberg: tracks

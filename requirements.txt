@@ -19,9 +19,11 @@ streamlit>=1.40.0
 # Vectors (stretch goal)
 lancedb>=0.17.0
 
-# Waymo decode
-waymo-open-dataset-tf2-3-6>=1.6.4
-tensorflow>=2.17.0
+# Waymo decode (Linux only — use synthetic generator on Windows,
+# or decode in Colab and bring the Parquet to this pipeline)
+# waymo-open-dataset-tf2-3-6>=1.6.4
+# tensorflow>=2.17.0
 
 # Utilities
 scikit-learn>=1.5.0
+numpy>=1.26.0
